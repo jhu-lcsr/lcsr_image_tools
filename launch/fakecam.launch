@@ -4,5 +4,5 @@
     <param name="camera_name" value="fake_stereo"/>
   </node>
   <node pkg="tf" type="static_transform_publisher" name="fakecam_static_publishter"
-    args="0 0 0 0 0 0 /world /fake_cam_link 10"/>
+    args="-0.7 0 -0.5 -1.56 0 -1.56 /world /fake_camera_link 10"/>
 </launch>
