@@ -137,11 +137,15 @@ int main(int argc, char** argv) {
     // Publish optical frames
 
     // Publish frames
+    std::vector<tf::StampedTransform> transforms;
+
     left_frame.setOrigin( tf::Vector3(parameters.separation/2.0, 0.0, 0.0) );
-    broadcaster.sendTransform(tf::StampedTransform(left_frame, ros::Time::now(), parameters.base_frame_id, "fake_cam_left_optical_link"));
+    transforms.push_back(tf::StampedTransform(left_frame, ros::Time::now(), parameters.base_frame_id, "fake_cam_left_optical_link"));
 
     right_frame.setOrigin( tf::Vector3(-parameters.separation/2.0, 0.0, 0.0) );
-    broadcaster.sendTransform(tf::StampedTransform(right_frame, ros::Time::now(), parameters.base_frame_id, "fake_cam_right_optical_link"));
+    transforms.push_back(tf::StampedTransform(right_frame, ros::Time::now(), parameters.base_frame_id, "fake_cam_right_optical_link"));
+
+    broadcaster.sendTransform(transforms);
 
     // Publish images
     msg.header.stamp = ros::Time::now();
