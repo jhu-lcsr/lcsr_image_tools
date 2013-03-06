@@ -27,6 +27,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_boost_directories()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 rosbuild_add_executable(fakecam_node src/fakecam_node.cpp)
+rosbuild_add_executable(video_file_publisher src/video_file_publisher.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
 #add dynamic reconfigure api

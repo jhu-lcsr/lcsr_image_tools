@@ -16,6 +16,9 @@
   <depend package="camera_calibration_parsers"/>
   <depend package="tf"/>
   <depend package="resource_retriever"/>
+  <depend package="terse_roscpp"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
 
 </package>
 
