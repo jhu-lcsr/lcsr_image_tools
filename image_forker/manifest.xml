@@ -1,0 +1,14 @@
+<package>
+  <description brief="image_forker">
+
+     image_forker
+
+  </description>
+  <author>Jonathan Bohren</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/image_forker</url>
+
+</package>
+
+
