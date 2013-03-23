@@ -1,0 +1,17 @@
+<launch>
+  <node name="video_file_publisher"
+    pkg="fakecam" type="video_file_publisher"
+    output="screen">
+    <param name="video_file_path" value="$(find fakecam)/data/test_video.ogv"/>
+    <rosparam>
+      auto_start: true
+      loop: true
+      cameras:
+        left:
+          encoding: bgr8 
+          frame_id: left_camera_optical_link
+          roi: []
+          calibration_file_uri: package://fakecam/data/camera_parameters.txt
+    </rosparam>
+  </node>
+</launch>
