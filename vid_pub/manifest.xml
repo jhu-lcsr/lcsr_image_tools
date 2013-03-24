@@ -1,0 +1,26 @@
+<package>
+  <description brief="vid_pub">
+
+     vid_pub
+
+  </description>
+  <author>Jonathan Bohren</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/vid_pub</url>
+
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <!--depend package="dynamic_reconfigure"/-->
+  <depend package="image_transport"/>
+  <depend package="camera_info_manager"/>
+  <depend package="camera_calibration_parsers"/>
+  <depend package="tf"/>
+  <depend package="resource_retriever"/>
+  <depend package="terse_roscpp"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+
+</package>
+
+
