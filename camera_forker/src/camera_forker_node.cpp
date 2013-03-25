@@ -7,8 +7,9 @@ int main(int argc, char** argv) {
 
   ros::init(argc, argv, "camera_forker");
   ros::NodeHandle nh;
+  ros::NodeHandle nh_private("~");
 
-  camera_forker::CameraForker forker(nh);
+  camera_forker::CameraForker forker(nh, nh_private);
 
   ros::spin();
 

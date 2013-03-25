@@ -19,7 +19,7 @@ namespace camera_forker {
   class ForkedPublisher
   {
   public:
-    ForkedPublisher(ros::NodeHandle nh, const std::string &camera_name);
+    ForkedPublisher(ros::NodeHandle nh, ros::NodeHandle nh_private, const std::string &camera_name);
     void publish(const sensor_msgs::ImageConstPtr& full_img_msg);
 
   private:
@@ -69,11 +69,12 @@ namespace camera_forker {
   public:
     typedef boost::ptr_vector<ForkedPublisher> ForkedPublisherList;
 
-    CameraForker(ros::NodeHandle nh);
+    CameraForker(ros::NodeHandle nh, ros::NodeHandle nh_private);
 
     void publish(const sensor_msgs::ImageConstPtr &image_msg);
   private:
     ros::NodeHandle nh_;
+    ros::NodeHandle nh_private_;
     image_transport::ImageTransport image_transport_;
     image_transport::Subscriber camera_sub_;
     std::vector<std::string> camera_fork_names_;

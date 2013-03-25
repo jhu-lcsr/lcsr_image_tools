@@ -6,31 +6,33 @@
 #include <camera_forker/camera_forker.h>
 
 namespace camera_forker {
-  CameraForker::CameraForker(ros::NodeHandle nh) :
+  CameraForker::CameraForker(ros::NodeHandle nh, ros::NodeHandle nh_private) :
     nh_(nh),
+    nh_private_(nh_private),
     image_transport_(nh),
     camera_fork_names_(0),
     camera_forks_(0)
   {
     namespace tparam = terse_roscpp::param;
 
-    tparam::children(nh_, "cameras", camera_fork_names_,
+    tparam::children(nh_private_, "cameras", camera_fork_names_,
         "The list of cameras to be spawned by this node.", 
         true);
 
-    // Construct the cameras
+    // Construct the fork publishers
     for(std::vector<std::string>::const_iterator camera_fork_name = camera_fork_names_.begin();
         camera_fork_name != camera_fork_names_.end();
         ++camera_fork_name)
     {
       camera_forks_.push_back(
           new ForkedPublisher(
-            ros::NodeHandle(nh,"cameras"), 
+            ros::NodeHandle(nh_,"cameras"), 
+            ros::NodeHandle(nh_private_,"cameras"), 
             *camera_fork_name));
     }
 
     // Construct the subscriber
-    camera_sub_ = image_transport_.subscribe("image",1,&CameraForker::publish,this);
+    camera_sub_ = image_transport_.subscribe("camera/image_raw",1,&CameraForker::publish,this);
   }
 
   void CameraForker::publish(const sensor_msgs::ImageConstPtr &image_msg)
@@ -45,8 +47,10 @@ namespace camera_forker {
 
   ForkedPublisher::ForkedPublisher(
       ros::NodeHandle nh,
+      ros::NodeHandle nh_private,
       const std::string &camera_name) : 
     nh_(nh, camera_name),
+    nh_private_(nh_private, camera_name),
     camera_name_(camera_name),
     camera_info_url_(""),
     use_roi_(false),
@@ -61,7 +65,7 @@ namespace camera_forker {
   {
     namespace tparam = terse_roscpp::param;
 
-    tparam::require(nh_, "camera_info_url_", camera_info_url_,
+    tparam::get(nh_private_, "camera_info_url_", camera_info_url_,
         "A ROS URI describing the location of the camera calibration file for the camera info.");
 
     camera_info_manager_.setCameraName(camera_name_);
@@ -74,7 +78,7 @@ namespace camera_forker {
 
     // Image properties
     std::vector<int> roi(4,-1);
-    use_roi_ = tparam::get(nh_, "roi", roi,
+    use_roi_ = tparam::get(nh_private_, "roi", roi,
         "The ROI (region of interest) of the video stream. Array: [x,y,width,height]");
     if(use_roi_) {
       if(roi.size() == 4) {
@@ -86,9 +90,9 @@ namespace camera_forker {
     }
 
     // Affine transformation
-    use_affine_ = nh_.hasParam("affine");
+    use_affine_ = nh_private_.hasParam("affine");
     if(use_affine_) {
-      ros::NodeHandle nh_affine = ros::NodeHandle(nh_,"affine");
+      ros::NodeHandle nh_affine = ros::NodeHandle(nh_private_,"affine");
 
       std::vector<double> translation(2,0.0), scale(2,1.0);
       double angle = 0.0;
@@ -120,17 +124,17 @@ namespace camera_forker {
       ROS_INFO_STREAM("Loaded affine transform: S*R*T\n"<<S<<"\n"<<R<<"\n"<<T<<"\n = "<<affine_transform_);
     }
 
-    tparam::get(nh_, "encoding", encoding_,
+    tparam::get(nh_private_, "encoding", encoding_,
         "The color encoding for this camera.");
-    tparam::require(nh_, "frame_id", frame_id_,
+    tparam::require(nh_private_, "frame_id", frame_id_,
         "The TF frame for this camera.");
 
     // Publisher properties
-    tparam::get(nh_, "pub_buffer_size", pub_buffer_size_,
+    tparam::get(nh_private_, "pub_buffer_size", pub_buffer_size_,
         "The size of the publisher buffer.");
 
     // create image transport and publishers
-    camera_pub_ = transport_.advertiseCamera("image", pub_buffer_size_);
+    camera_pub_ = transport_.advertiseCamera("image_raw", pub_buffer_size_);
   }
 
   void ForkedPublisher::publish(const sensor_msgs::ImageConstPtr& full_image_msg)

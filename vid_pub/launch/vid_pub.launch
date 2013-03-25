@@ -1,0 +1,14 @@
+<launch>
+  <arg name="FILENAME"/>
+  <node name="vid_pub" anonymous="true"
+    pkg="vid_pub" type="vid_pub_node"
+    output="screen">
+    <param name="video_file_path" value="$(arg FILENAME)"/>
+    <rosparam>
+      auto_start: true
+      loop: true
+      start_time: 40.0
+      end_time: 50.0
+    </rosparam>
+  </node>
+</launch>
