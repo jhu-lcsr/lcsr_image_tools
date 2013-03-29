@@ -20,7 +20,9 @@ namespace camera_forker {
   {
   public:
     ForkedPublisher(ros::NodeHandle nh, ros::NodeHandle nh_private, const std::string &camera_name);
-    void publish(const sensor_msgs::ImageConstPtr& full_img_msg);
+    void publish(
+        const sensor_msgs::ImageConstPtr &full_image_msg,
+        const sensor_msgs::CameraInfoConstPtr &full_camera_info_msg);
 
   private:
     // Local nodehandle
@@ -29,7 +31,12 @@ namespace camera_forker {
 
     // Parameters
     std::string camera_name_;
+    
+    // Camera info
+    bool use_predefined_camera_info_;
     std::string camera_info_url_;
+    bool inherit_camera_info_;
+
 
     // ROI selection
     bool use_roi_;
@@ -71,12 +78,15 @@ namespace camera_forker {
 
     CameraForker(ros::NodeHandle nh, ros::NodeHandle nh_private);
 
-    void publish(const sensor_msgs::ImageConstPtr &image_msg);
+    void publish(
+        const sensor_msgs::ImageConstPtr &image_msg,
+        const sensor_msgs::CameraInfoConstPtr &camera_info_msg);
+
   private:
     ros::NodeHandle nh_;
     ros::NodeHandle nh_private_;
     image_transport::ImageTransport image_transport_;
-    image_transport::Subscriber camera_sub_;
+    image_transport::CameraSubscriber camera_sub_;
     std::vector<std::string> camera_fork_names_;
     ForkedPublisherList camera_forks_;
 

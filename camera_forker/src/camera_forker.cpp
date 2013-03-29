@@ -15,7 +15,7 @@ namespace camera_forker {
   {
     namespace tparam = terse_roscpp::param;
 
-    tparam::children(nh_private_, "cameras", camera_fork_names_,
+    tparam::children(nh_private_, "forked_cameras", camera_fork_names_,
         "The list of cameras to be spawned by this node.", 
         true);
 
@@ -26,22 +26,26 @@ namespace camera_forker {
     {
       camera_forks_.push_back(
           new ForkedPublisher(
-            ros::NodeHandle(nh_,"cameras"), 
-            ros::NodeHandle(nh_private_,"cameras"), 
+            ros::NodeHandle(nh_,"forked_cameras"), 
+            ros::NodeHandle(nh_private_,"forked_cameras"), 
             *camera_fork_name));
     }
 
     // Construct the subscriber
-    camera_sub_ = image_transport_.subscribe("camera/image_raw",1,&CameraForker::publish,this);
+    camera_sub_ = image_transport_.subscribeCamera(
+        "image_raw", 1,
+        &CameraForker::publish,this);
   }
 
-  void CameraForker::publish(const sensor_msgs::ImageConstPtr &image_msg)
+  void CameraForker::publish(
+      const sensor_msgs::ImageConstPtr &image_msg,
+      const sensor_msgs::CameraInfoConstPtr & camera_info_msg)
   {
     for(ForkedPublisherList::iterator camera_fork = camera_forks_.begin();
         camera_fork != camera_forks_.end();
         ++camera_fork)
     {
-      camera_fork->publish(image_msg);
+      camera_fork->publish(image_msg, camera_info_msg);
     }
   }
 
@@ -65,15 +69,20 @@ namespace camera_forker {
   {
     namespace tparam = terse_roscpp::param;
 
-    tparam::get(nh_private_, "camera_info_url_", camera_info_url_,
+    use_predefined_camera_info_ = tparam::get(nh_private_, "camera_info_url", camera_info_url_,
         "A ROS URI describing the location of the camera calibration file for the camera info.");
 
-    camera_info_manager_.setCameraName(camera_name_);
+    if(use_predefined_camera_info_) {
+      camera_info_manager_.setCameraName(camera_name_);
 
-    if(camera_info_manager_.validateURL(camera_info_url_)) {
-      camera_info_manager_.loadCameraInfo(camera_info_url_); 
+      if(camera_info_manager_.validateURL(camera_info_url_)) {
+        camera_info_manager_.loadCameraInfo(camera_info_url_); 
+      } else {
+        ROS_WARN_STREAM("Camera info at: "<<camera_info_url_<<" not found. Using an uncalibrated config.");
+      }
     } else {
-      ROS_WARN_STREAM("Camera info at: "<<camera_info_url_<<" not found. Using an uncalibrated config.");
+      ROS_INFO("Propagating camera info through transform.");
+      inherit_camera_info_ = true;
     }
 
     // Image properties
@@ -84,7 +93,7 @@ namespace camera_forker {
       if(roi.size() == 4) {
         roi_ = cv::Rect(roi[0],roi[1],roi[2],roi[3]);
       } else {
-        ROS_WARN_STREAM("ROI parameter is not 4 elements long! Using full image instead. Parameter is: "<<nh_.getNamespace()<<"/roi");
+        ROS_WARN_STREAM("ROI parameter is not 4 elements long! Disregarding it. Parameter is: "<<nh_.getNamespace()<<"/roi");
         use_roi_ = false;
       }
     }
@@ -102,6 +111,8 @@ namespace camera_forker {
       tparam::get(nh_affine, "rotation_angle", angle, "The affine rotation.");
       tparam::get(nh_affine, "scale", scale, "The affine scale. Array: [sx,sy]");
       tparam::get(nh_affine, "size", size, "The size of the transformed image. Array: [width,height]");
+
+      // TODO: Check sizes of all these values
 
       // Construct translation
       cv::Mat T = cv::Mat::eye(3,3,CV_32F);
@@ -137,15 +148,68 @@ namespace camera_forker {
     camera_pub_ = transport_.advertiseCamera("image_raw", pub_buffer_size_);
   }
 
-  void ForkedPublisher::publish(const sensor_msgs::ImageConstPtr& full_image_msg)
+  void ForkedPublisher::publish(
+      const sensor_msgs::ImageConstPtr& full_image_msg,
+      const sensor_msgs::CameraInfoConstPtr& full_image_camera_info_msg)
   {
     // Create new image and camera_info messages
     sensor_msgs::ImagePtr forked_image_msg(new sensor_msgs::Image());
-    sensor_msgs::CameraInfoPtr forked_camera_info(new sensor_msgs::CameraInfo(camera_info_manager_.getCameraInfo()));
+    sensor_msgs::CameraInfoPtr forked_camera_info;
+    
+    if(inherit_camera_info_) { 
+      // Propagate the camera info through the transform
+      forked_camera_info.reset(new sensor_msgs::CameraInfo(*full_image_camera_info_msg.get()));
+      // Convert calibration matrices into cv::Mat structures
+      cv::Mat 
+        A = cv::Mat::eye(3,3,CV_32F),
+        K(3,3,CV_32F),
+        P(3,4,CV_32F);
+
+      for(int i=0; i<3; i++) {
+        for(int j=0; j<3; j++) {
+          K.at<float>(i,j) = full_image_camera_info_msg->K.at(i*3+j);
+        }
+      }
+
+      for(int i=0; i<3; i++) {
+        for(int j=0; j<4; j++) {
+          P.at<float>(i,j) = full_image_camera_info_msg->P.at(i*3+j);
+        }
+      }
+
+      // Reshaoe to 3 rows
+      K.reshape(0,3);
+      P.reshape(0,3);
+
+      // Make the affine transform homogeneous
+      affine_transform_.copyTo(A(cv::Rect(0,0,3,2)));
+
+      // Transform the projection matrices
+      K = A*K;
+      P = A*P;
+
+      // Convert back into camera info message
+      for(int i=0; i<3; i++) {
+        for(int j=0; j<3; j++) {
+          forked_camera_info->K.at(i*3+j) = K.at<float>(i,j);
+        }
+      }
+
+      for(int i=0; i<3; i++) {
+        for(int j=0; j<4; j++) {
+          forked_camera_info->P.at(i*3+j) = P.at<float>(i,j);
+        }
+      }
+
+    } else {
+      forked_camera_info.reset(new sensor_msgs::CameraInfo(camera_info_manager_.getCameraInfo()));
+    }
 
     // Copy header from forked camera
     forked_camera_info->header.stamp = full_image_msg->header.stamp;
     forked_camera_info->header.frame_id = frame_id_;
+    forked_camera_info->width = affine_transform_size_.width;
+    forked_camera_info->height = affine_transform_size_.height;
 
     // The image to broadcast
     cv_bridge::CvImageConstPtr full_image_bridge = cv_bridge::toCvShare(full_image_msg, encoding_);
