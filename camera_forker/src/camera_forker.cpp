@@ -57,6 +57,8 @@ namespace camera_forker {
     nh_private_(nh_private, camera_name),
     camera_name_(camera_name),
     camera_info_url_(""),
+    use_predefined_camera_info_(false),
+    inherit_camera_info_(false),
     use_roi_(false),
     roi_(0,0,0,0),
     use_affine_(false),

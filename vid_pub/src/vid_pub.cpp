@@ -129,7 +129,7 @@ public:
       if(play_) {
         bool image_captured = vid_cap.read(full_image);
         bool before_play_range = (playback_time.toSec() - start_time_) < -(1.0/fps_);
-        bool after_play_range = end_time_ > 0.0 && (playback_time.toSec() - end_time_) > (1.0/fps_);
+        bool after_play_range = end_time_ > 1E-5 && (playback_time.toSec() - end_time_) > (1.0/fps_);
         
         if(!image_captured || before_play_range || after_play_range) {
           if(loop_ && !image_captured) {
@@ -206,7 +206,7 @@ private:
     play_ = config.play;
     loop_ = config.loop;
     start_time_ = std::max(0.0,config.start_time);
-    end_time_ = std::max(start_time_,config.end_time);
+    end_time_ = (start_time_ < config.end_time) ? (config.end_time) : (0.0);
   }
 
 };
