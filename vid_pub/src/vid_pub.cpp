@@ -96,7 +96,7 @@ public:
 
     ros::Rate rate(fps_);
     ros::Time now;
-    cv::Mat full_image;
+    static cv::Mat full_image;
 
     ROS_INFO_STREAM("Publishing camera streams from video file: "<<video_file_path_<<" at "<<fps_<<" FPS.");
 
@@ -152,27 +152,33 @@ public:
         }
       }
 
-      // Publish images
-      // Create new image and camera_info messages
-      sensor_msgs::ImagePtr image_msg(new sensor_msgs::Image());
-      sensor_msgs::CameraInfoPtr camera_info(new sensor_msgs::CameraInfo(camera_info_manager_.getCameraInfo()));
+      // Only publish if the image is non-zero size
+  
+      if(full_image.rows > 0 && full_image.cols > 0) {
+        // Create new image and camera_info messages
+        sensor_msgs::ImagePtr image_msg(new sensor_msgs::Image());
+        sensor_msgs::CameraInfoPtr camera_info(new sensor_msgs::CameraInfo(camera_info_manager_.getCameraInfo()));
 
-      camera_info->header.frame_id = frame_id_;
-      camera_info->header.stamp = now;
-      image_msg->header = camera_info->header;
-      image_msg->encoding = encoding_;
+        camera_info->header.frame_id = frame_id_;
+        camera_info->header.stamp = now;
+        image_msg->header = camera_info->header;
+        image_msg->encoding = encoding_;
 
-      // Create a wrapper for the cv::Mat for publishing
-      cv_bridge::CvImage image_bridge = cv_bridge::CvImage(
-          camera_info->header,
-          encoding_, 
-          full_image);
+        // Create a wrapper for the cv::Mat for publishing
+        cv_bridge::CvImage image_bridge = cv_bridge::CvImage(
+            camera_info->header,
+            encoding_, 
+            full_image);
 
-      // Convert the opencv image to a ros image message
-      image_bridge.toImageMsg(*image_msg);
+        // Convert the opencv image to a ros image message
+        image_bridge.toImageMsg(*image_msg);
 
-      // Publish the image and camera info
-      camera_pub_.publish(image_msg, camera_info);
+        // Publish the image and camera info
+        camera_pub_.publish(image_msg, camera_info);
+      } else {
+        ROS_WARN("Image is zero size!");
+        ros::Duration(0.1).sleep();
+      }
 
       ros::spinOnce();
 
