@@ -1,0 +1,58 @@
+<package>
+  <name>vid_pub</name>
+  <version>0.1.0</version>
+  <description>vid_pub</description>
+  <maintainer email="jbo@jhu.edu">Jonathan Bohren</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/vid_pub</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Jonathan Bohren</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this pacakge. -->
+  <build_depend>rospy</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>camera_info_manager</build_depend>
+  <build_depend>camera_calibration_parsers</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>resource_retriever</build_depend>
+  <build_depend>terse_roscpp</build_depend>
+  <build_depend>opencv2</build_depend>
+  <build_depend>cv_bridge</build_depend>
+
+  <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>rospy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>image_transport</run_depend>
+  <run_depend>camera_info_manager</run_depend>
+  <run_depend>camera_calibration_parsers</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>resource_retriever</run_depend>
+  <run_depend>terse_roscpp</run_depend>
+  <run_depend>opencv2</run_depend>
+  <run_depend>cv_bridge</run_depend>
+
+  <!-- Dependencies needed only for running tests. -->
+  <!-- <test_depend>rospy</test_depend> -->
+  <!-- <test_depend>roscpp</test_depend> -->
+  <!-- <test_depend>dynamic_reconfigure</test_depend> -->
+  <!-- <test_depend>image_transport</test_depend> -->
+  <!-- <test_depend>camera_info_manager</test_depend> -->
+  <!-- <test_depend>camera_calibration_parsers</test_depend> -->
+  <!-- <test_depend>tf</test_depend> -->
+  <!-- <test_depend>resource_retriever</test_depend> -->
+  <!-- <test_depend>terse_roscpp</test_depend> -->
+  <!-- <test_depend>opencv2</test_depend> -->
+  <!-- <test_depend>cv_bridge</test_depend> -->
+
+  <export>
+
+  </export>
+</package>
