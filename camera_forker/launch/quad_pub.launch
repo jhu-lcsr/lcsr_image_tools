@@ -1,0 +1,37 @@
+<launch>
+  <arg name="video"/>
+
+  <node name="quad_pub"
+    pkg="fakecam" type="video_file_publisher"
+    output="screen">
+    <param name="video_file_path" value="$(arg video)"/>
+    <rosparam>
+      auto_start: true
+      start_time: 585.0
+      end_time: 813.0
+      loop: true
+      cameras:
+        quad_nw:
+          encoding: bgr8 
+          frame_id: left_camera_optical_link
+          calibration_file_uri: package://fakecam/data/camera_parameters.txt
+          roi: []
+          affine:
+            translation: [0.0, 0.0]
+            rotation_angle: 0.0
+            scale: [1.0, 1.0]
+            size: [360, 240]
+        quad_ne:
+          encoding: bgr8 
+          frame_id: right_camera_optical_link
+          calibration_file_uri: package://fakecam/data/camera_parameters.txt
+          roi: []
+          affine:
+            translation: [-360.0, 0.0]
+            rotation_angle: 0.0
+            scale: [1.0, 1.0]
+            size: [360, 240]
+    </rosparam>
+  </node>
+</launch>
+

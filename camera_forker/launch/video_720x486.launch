@@ -1,0 +1,23 @@
+
+<launch>
+
+  <arg name="FILE"/>
+
+  <node name="forker" anonymous="true"
+    pkg="camera_forker" type="camera_forker_node"
+    output="screen">
+    <rosparam>
+      cameras:
+        ground_camera:
+          encoding: bgr8 
+          frame_id: flight_camera
+          camera_info_url: package://fakecam/data/camera_parameters.txt
+          roi: []
+          affine:
+            translation: [0.0, 0.0]
+            rotation_angle: 0.0
+            scale: [0.9, 1.0]
+            size: [640, 480]
+    </rosparam>
+  </node>
+</launch>

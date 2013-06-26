@@ -1,0 +1,35 @@
+<launch>
+
+  <arg name="FILE"/>
+
+  <node
+    name="vid_pub" anonymous="true"
+    pkg="vid_pub" type="vid_pub_node"
+    output="screen">
+    <param name="video_file_path" value="$(arg FILE)"/>
+    <rosparam>
+      auto_start: true
+      loop: true
+      start_time: 0.0
+      end_time: 0.0
+    </rosparam>
+  </node>
+
+  <node name="forker" anonymous="true"
+    pkg="camera_forker" type="camera_forker_node"
+    output="screen">
+    <rosparam>
+      cameras:
+        flight_camera:
+          encoding: bgr8 
+          frame_id: flight_camera
+          camera_info_url: package://fakecam/data/camera_parameters.txt
+          roi: []
+          affine:
+            translation: [-160.0, 0.0]
+            rotation_angle: 0.0
+            scale: [0.6666, 0.6666]
+            size: [640, 480]
+    </rosparam>
+  </node>
+</launch>

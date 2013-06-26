@@ -1,0 +1,35 @@
+<launch>
+
+  <arg name="FILE"/>
+  <arg name="START" default="0.0"/>
+  <arg name="END" default="0.0"/>
+  <arg name="CAMERA_INFO"/>
+
+  <node
+    name="vid_pub" anonymous="true"
+    pkg="vid_pub" type="vid_pub_node"
+    output="screen">
+    <param name="video_file_path" value="$(arg FILE)"/>
+    <param name="start_time" value="$(arg START)"/>
+    <param name="end_time" value="$(arg END)"/>
+    <param name="auto_start" value="true"/>
+    <param name="loop" value="true"/>
+  </node>
+
+  <node ns="camera" name="squarer"
+    pkg="camera_forker" type="camera_forker_node"
+    output="screen" clear_params="true">
+    <param     name="forked_cameras/square/camera_info_url" value="$(arg CAMERA_INFO)"/>
+    <param     name="forked_cameras/square/encoding" value="bgr8"/>
+    <param     name="forked_cameras/square/frame_id" value="/right_optical_frame"/>
+    <rosparam param="forked_cameras/square/affine">
+      translation: [-160.0, 0.0]
+      rotation_angle: 0.0
+      scale: [0.66666, 0.66666]
+      size: [640, 480]
+    </rosparam>
+  </node>
+
+  <!-- Rectification -->
+  <node ns="camera/forked_cameras/square" name="image_proc" pkg="image_proc" type="image_proc"/>
+</launch>
