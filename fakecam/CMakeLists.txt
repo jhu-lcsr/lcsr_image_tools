@@ -25,5 +25,3 @@ include_directories(${catkin_INCLUDE_DIRS})
 add_executable(video_file_publisher src/video_file_publisher.cpp)
 target_link_libraries(video_file_publisher ${catkin_LIBRARIES})
 
-add_executable(bar src/bar.cpp)
-
