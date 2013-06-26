@@ -6,23 +6,24 @@ find_package(catkin REQUIRED COMPONENTS rospy roscpp image_transport
   camera_calibration_parsers tf resource_retriever terse_roscpp
   cv_bridge)
 
-find_package(OpenCV REQUIRED )
-
-include_directories(include ${Boost_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
-
-#add_executable(fakecam_node src/fakecam_node.cpp)
-add_executable(video_file_publisher src/video_file_publisher.cpp)
-target_link_libraries(video_file_publisher ${catkin_LIBRARIES})
-
 # TODO: fill in what other packages will need to use this package
 ## DEPENDS: system dependencies of this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## INCLUDE_DIRS: 
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 catkin_package(
-    DEPENDS rospy roscpp image_transport camera_calibration_parsers tf
-    resource_retriever terse_roscpp opencv2 cv_bridge
-    CATKIN_DEPENDS # TODO
-    INCLUDE_DIRS 
-    LIBRARIES 
-)
+  DEPENDS rospy roscpp image_transport camera_calibration_parsers tf
+  resource_retriever terse_roscpp opencv2 cv_bridge
+  CATKIN_DEPENDS # TODO
+  INCLUDE_DIRS 
+  LIBRARIES 
+  )
+
+include_directories(${catkin_INCLUDE_DIRS})
+
+#add_executable(fakecam_node src/fakecam_node.cpp)
+add_executable(video_file_publisher src/video_file_publisher.cpp)
+target_link_libraries(video_file_publisher ${catkin_LIBRARIES})
+
+add_executable(bar src/bar.cpp)
+

@@ -1,12 +1,12 @@
 <package>
   <name>camera_forker</name>
   <version>0.1.0</version>
-  <description>image_forker</description>
+  <description>camera_forker</description>
   <maintainer email="jbo@jhu.edu">Jonathan Bohren</maintainer>
 
   <license>BSD</license>
 
-  <url type="website">http://ros.org/wiki/image_forker</url>
+  <url type="website">http://ros.org/wiki/camera_forker</url>
   <!-- <url type="bugtracker"></url> -->
 
   <author>Jonathan Bohren</author>
