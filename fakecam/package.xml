@@ -15,6 +15,7 @@
 
   <!-- Dependencies needed to compile this pacakge. -->
   <build_depend>rospy</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>image_transport</build_depend>
   <build_depend>camera_calibration_parsers</build_depend>
@@ -26,6 +27,7 @@
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>rospy</run_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>image_transport</run_depend>
   <run_depend>camera_calibration_parsers</run_depend>
