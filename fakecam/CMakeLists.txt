@@ -27,6 +27,7 @@ include_directories(${catkin_INCLUDE_DIRS})
 
 add_executable(fakecam_node src/fakecam_node.cpp)
 add_dependencies(fakecam_node ${PROJECT_NAME}_gencfg)
+target_link_libraries(fakecam_node ${catkin_LIBRARIES})
 
 add_executable(video_file_publisher src/video_file_publisher.cpp)
 target_link_libraries(video_file_publisher ${catkin_LIBRARIES})
