@@ -3,8 +3,12 @@ project(fakecam)
 # Load catkin and all dependencies required for this package
 # TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED COMPONENTS rospy roscpp image_transport
-  camera_calibration_parsers tf resource_retriever terse_roscpp
+  camera_calibration_parsers tf resource_retriever terse_roscpp dynamic_reconfigure
   cv_bridge)
+
+generate_dynamic_reconfigure_options(
+  cfg/FakeCam.cfg
+)
 
 # TODO: fill in what other packages will need to use this package
 ## DEPENDS: system dependencies of this project that dependent projects also need
@@ -21,7 +25,9 @@ catkin_package(
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-#add_executable(fakecam_node src/fakecam_node.cpp)
+add_executable(fakecam_node src/fakecam_node.cpp)
+add_dependencies(fakecam_node ${PROJECT_NAME}_gencfg)
+
 add_executable(video_file_publisher src/video_file_publisher.cpp)
 target_link_libraries(video_file_publisher ${catkin_LIBRARIES})
 
